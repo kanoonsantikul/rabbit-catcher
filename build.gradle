@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.10'
+}
+
+mainClassName = 'com.kanoonsantikul.catcher.Catcher'
+
+jar {
+    baseName = 'Rabbit Catcher'
+    version =  '1.0.0'
+
+    manifest {
+        attributes 'Main-Class': 'com.kanoonsantikul.catcher.Catcher'
+    }
+}
+
+run {
+    standardInput = System.in
+}

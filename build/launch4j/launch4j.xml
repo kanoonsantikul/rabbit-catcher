@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>console</headerType>
+  <jar>lib/Rabbit Catcher-1.0.0.jar</jar>
+  <outfile>Rabbit Catcher.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon></icon>
+  <classPath>
+    <mainClass>com.example.myapp.Start</mainClass>
+  </classPath>
+  <jre>
+    <path></path>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>1.7.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+  </jre>
+  <versionInfo>
+    <fileVersion>0.0.0.1</fileVersion>
+    <txtFileVersion>unspecified</txtFileVersion>
+    <fileDescription>rabbit-catcher</fileDescription>
+    <copyright>unknown</copyright>
+    <productVersion>0.0.0.1</productVersion>
+    <txtProductVersion>unspecified</txtProductVersion>
+    <productName>rabbit-catcher</productName>
+    <companyName></companyName>
+    <internalName>rabbit-catcher</internalName>
+    <originalFilename>Rabbit Catcher.exe</originalFilename>
+  </versionInfo>
+</launch4jConfig>

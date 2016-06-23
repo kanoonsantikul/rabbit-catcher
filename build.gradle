@@ -1,11 +1,26 @@
 apply plugin: 'java'
-apply plugin: 'application'
+apply plugin: 'edu.sc.seis.launch4j'
+
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'gradle.plugin.edu.sc.seis.gradle:launch4j:1.6.1'
+    }
+}
+
+launch4j {
+    outfile = 'Rabbit Catcher.exe'
+    headerType = 'console'
+    mainClassName = 'com.example.myapp.Start'
+}
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.10'
 }
-
-mainClassName = 'com.kanoonsantikul.catcher.Catcher'
 
 jar {
     baseName = 'Rabbit Catcher'
@@ -14,8 +29,4 @@ jar {
     manifest {
         attributes 'Main-Class': 'com.kanoonsantikul.catcher.Catcher'
     }
-}
-
-run {
-    standardInput = System.in
 }

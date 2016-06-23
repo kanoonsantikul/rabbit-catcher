@@ -81,6 +81,7 @@ public class Catcher{
 
                 String fileUrl;
                 for(int i = startAt - 1 ; i < fileUrls.size(); i++){
+                    int returnCode;
                     fileUrl = fileUrls.get(i);
                     String filePart = "" + (i+1);
                     while(filePart.length() != 3){
@@ -88,7 +89,7 @@ public class Catcher{
                     }
 
                     do{
-                        int returnCode = downloadFile(fileUrl, SAVE_DIR, itemName + "." + filePart);
+                        returnCode = downloadFile(fileUrl, SAVE_DIR, itemName + "." + filePart);
                         if(returnCode == FILE_UNAVAILABLE_CODE);{
                             try {
                                 println("File not available right now : Please wait...");

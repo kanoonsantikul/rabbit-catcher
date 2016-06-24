@@ -22,7 +22,10 @@ public class Catcher{
     private static String SAVE_DIR;
 
     public static void main(String[] args){
+        (new Catcher()).run();
+    }
 
+    public void run(){
         Scanner userInput = new Scanner(System.in);
         URL url;
         HttpURLConnection connection;
@@ -33,40 +36,34 @@ public class Catcher{
         hostUrl = userInput.next();
 
         try{
-            //get connection
-            connection = createConnection(new URL(hostUrl));
-
-            int responseCode = connection.getResponseCode();
             System.out.println("\nSending 'GET' request to URL : " + hostUrl);
+            HtmlDigger html = new HtmlDigger(hostUrl);
+
+            //get connection
+            connection = html.getHttpConnection();
+            int responseCode = connection.getResponseCode();
     		System.out.println("Response Code : " + responseCode);
 
-            //get html text
-            StringBuffer response = getResponseHtml(connection);
+            //get link tag
+            ArrayList<String> linkTags = html.findTag("a", HtmlDigger.TWO_TAG);
+            linkTags = new ArrayList(linkTags.subList(11, linkTags.size() - 2));
 
-            //create pattern matcher
-            Pattern MY_PATTERM = Pattern.compile(
-                    "<a class='list-group-item' href='([^>]+)'(.+?)>(.+?)</a>",
-                    Pattern.MULTILINE);
-            Matcher matcher = MY_PATTERM.matcher(response.toString());
+            //get fileUrl
+            println("\nFound urls : ");
+            for(int i = 0; i < linkTags.size(); i++){
+                String s = html.getTagAttribute(linkTags.get(i), "href");
 
-            //extract name
-            matcher.find();
-            String itemName = matcher.group(3);
-            itemName = itemName.substring(14, itemName.length() - 7);
-            SAVE_DIR = "/home/" + System.getProperty("user.name") + "/Downloads/" + itemName;
-            println("\nFounds item : " + itemName + "\nDownload to directory : " + SAVE_DIR);
-
-            //extract link from html
-            matcher.reset();
-            if(matcher.groupCount() != 0){
-                println("\nFound urls : ");
-                int i = 0;
-                while(matcher.find()){
-                    String s = matcher.group(1);
+                if(s != null){
                     fileUrls.add(s);
-                    println(++i + " : " + s);
+                    println((i+1) + " : " + s);
                 }
             }
+
+            //extract name
+            String itemName = html.getTagContent(linkTags.get(0));
+            itemName = itemName.substring(40, itemName.length() - 7);
+            SAVE_DIR = "/home/" + System.getProperty("user.name") + "/Downloads/" + itemName;
+            println("\nFounds item : " + itemName + "\nDownload to directory : " + SAVE_DIR);
 
             if(fileUrls.size() > 0){
                 //create directory
@@ -115,36 +112,7 @@ public class Catcher{
         }
     }
 
-    public static HttpURLConnection createConnection(URL url)
-            throws Exception{
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        //create connection
-        connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-        connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-        connection.setFollowRedirects(true);
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-
-        return connection;
-    }
-
-    public static StringBuffer getResponseHtml(HttpURLConnection connection)
-            throws Exception{
-        //get result
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        return response;
-    }
-
-    public static int downloadFile(String fileURL, String saveDir, String fileName)
+    public int downloadFile(String fileURL, String saveDir, String fileName)
             throws Exception{
         HttpURLConnection connection = createConnection(new URL(fileURL));
         int responseCode = connection.getResponseCode();
@@ -204,7 +172,22 @@ public class Catcher{
         }
     }
 
-    public static void println(String text){
+    public void println(String text){
         System.out.println(text);
+    }
+
+    public HttpURLConnection createConnection(URL url)
+            throws Exception{
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        //create connection
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+        connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+        connection.setFollowRedirects(true);
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+
+        return connection;
     }
 }

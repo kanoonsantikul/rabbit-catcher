@@ -47,8 +47,7 @@ public class HtmlDigger{
         }
     }
 
-    public ArrayList<String> findInHtml(Pattern pattern,int group)
-            throws IOException{
+    public ArrayList<String> findInHtml(Pattern pattern,int group){
         ArrayList<String> texts = new ArrayList<String>();
         Matcher matcher = pattern.matcher(getHtmlString());
 
@@ -62,8 +61,7 @@ public class HtmlDigger{
         else return null;
     }
 
-    public ArrayList<String> findTag(String tagName, int tagType)
-            throws IOException{
+    public ArrayList<String> findTag(String tagName, int tagType){
         ArrayList<String> tags = new ArrayList<String>();
         String regex = "";
         if(tagType == TWO_TAG){
@@ -83,7 +81,7 @@ public class HtmlDigger{
         return this.connection;
     }
 
-    public String getHtmlString()  throws IOException{
+    public String getHtmlString(){
         return response.toString();
     }
 

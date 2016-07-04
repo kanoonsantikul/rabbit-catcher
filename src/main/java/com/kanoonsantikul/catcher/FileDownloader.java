@@ -21,39 +21,26 @@ public class FileDownloader{
     private String destinationDirectory = null;
     private String fileName = null;
 
-    public static HttpURLConnection createConnection(URL url)
-            throws IOException{
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        //create connection
-        connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-        connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-        connection.setFollowRedirects(true);
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-
-        return connection;
-    }
-
+    //create new download task
     public static FileDownloader download(String urlString) throws
             MalformedURLException,
             IOException{
         URL url = new URL(urlString);
         HttpURLConnection connection = createConnection(url);
-        int responseCode = connection.getResponseCode();
 
         FileDownloader fileDownloader = new FileDownloader();
-        fileDownloader.setConnection(connection);
         fileDownloader.setUrlString(urlString);
+        fileDownloader.setConnection(connection);
         return fileDownloader;
     }
 
+    //set file output file name
     public FileDownloader as(String fileName){
         this.fileName = fileName;
         return this;
     }
 
+    //set file output directory to write data into
     public FileDownloader into(String destination){
         this.destinationDirectory = destination;
 
@@ -66,16 +53,14 @@ public class FileDownloader{
         return this;
     }
 
+    //set custom connection to downloader
     public void setConnection(HttpURLConnection connection) throws IOException{
         this.connection = connection;
         this.responseCode = connection.getResponseCode();
     }
 
-    public void setUrlString(String urlString){
-        this.urlString = urlString;
-    }
-
-    public int start() throws IOException{
+    //start the downloader
+    public int start(boolean showStatus) throws IOException{
         int downloadStatus;
 
         if(responseCode == HttpURLConnection.HTTP_OK){
@@ -83,16 +68,18 @@ public class FileDownloader{
             String contentType = connection.getContentType();
             int contentLength = connection.getContentLength();
 
-            System.out.println("Content-Type : " + contentType);
-            System.out.println("Content-Disposition : " + disposition);
+            //System.out.println("Content-Type : " + contentType);
+            //System.out.println("Content-Disposition : " + disposition);
 
             if(contentType.contains("force-download")){
                 if(fileName == null){
                     fileName = getFileName(disposition);
                 }
 
-                System.out.println("Downloading file : " + fileName);
-                System.out.println("Content-Length : " + contentLength);
+                if(showStatus){
+                    System.out.println("Downloading file : " + fileName);
+                    System.out.println("Content-Length : " + contentLength);
+                }
 
                 // opens input stream from the HTTP connection
                 InputStream inputStream = connection.getInputStream();
@@ -103,28 +90,53 @@ public class FileDownloader{
                         new File(destinationFile));
 
                 int bytesRead = -1;
+                int contentRead = 0;
+                double percent;
                 byte[] buffer = new byte[BUFFER_SIZE];
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
+                    if(showStatus){
+                        contentRead += bytesRead;
+                        percent = (contentRead * 100.00) / contentLength ;
+                        System.out.print("File downloaded : [" + percent + "%]   \r");
+                    }
                 }
 
                 outputStream.close();
                 inputStream.close();
-                System.out.println("File downloaded");
+
+                if(showStatus){
+                    System.out.println("Download complete                         ");
+                }
 
                 downloadStatus = FILE_REACHED;
-
             } else{
                 downloadStatus = FILE_UNAVAILABLE;
             }
         } else{
             downloadStatus = FILE_UNREACHABLE;
         }
-
         connection.disconnect();
         return downloadStatus;
     }
 
+    //create new http connection
+    private static HttpURLConnection createConnection(URL url) throws IOException{
+        HttpURLConnection connection;
+
+        //create connection
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+        connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+        connection.setFollowRedirects(true);
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+
+        return connection;
+    }
+
+    //if custom file name doesn't set, auto generate it
     private String getFileName(String disposition){
         String fileName = null;
         if (disposition != null) { // extracts file name from header field (indirect link)
@@ -139,5 +151,10 @@ public class FileDownloader{
                     urlString.length());
         }
         return fileName;
+    }
+
+    //set http url to downloader instance
+    private void setUrlString(String urlString){
+        this.urlString = urlString;
     }
 }

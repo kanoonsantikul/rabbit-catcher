@@ -48,13 +48,13 @@ public class Catcher{
 
     public void run(){
         //get link tag
-        ArrayList<String> linkTags = html.findTag("a", HtmlDigger.TWO_TAG);
+        ArrayList<String> linkTags = html.getElementByTag("a", HtmlDigger.TWO_TAG);
         linkTags = new ArrayList(linkTags.subList(11, linkTags.size() - 2));
 
         ArrayList<String> fileUrls;
         try{
             fileUrls = collectFileUrls(linkTags);
-            System.out.println("collect " + fileUrls.size() + "part");
+            System.out.println("\ncollect " + fileUrls.size() + " part");
             for(int i = 0; i < fileUrls.size(); i++){
                 System.out.println((i+1) + " : " + fileUrls.get(i));
             }
@@ -87,9 +87,9 @@ public class Catcher{
             int downloadStatus = download(fileUrl, fileName + "." + filePart);
             if(downloadStatus == FileDownloader.FILE_UNREACHABLE){
                 System.out.println("Connection error");
+                break;
             }
         }
-
     }
 
     private ArrayList<String> collectFileUrls(ArrayList<String> linkTags) throws IOException{
@@ -97,7 +97,7 @@ public class Catcher{
 
         //get fileUrls
         for(int i = 0; i < linkTags.size(); i++){
-            String s = html.getTagAttribute(linkTags.get(i), "href");
+            String s = html.getTagAttributeValue(linkTags.get(i), "href");
             if(s != null){
                 fileUrls.add(s);
             }
@@ -112,15 +112,10 @@ public class Catcher{
                 downloadStatus = FileDownloader.download(fileUrl)
                         .as(fileName)
                         .into(destinationDirectory)
-                        .start();
+                        .start(true);
 
                 if(downloadStatus == FileDownloader.FILE_UNAVAILABLE);{
-                    try {
-                        System.out.println("File not available right now : Please wait...");
-                        Thread.sleep(1000 * 60 * 10);
-                    } catch(InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
+                    printWaitMessage();
                 }
             }while(downloadStatus == FileDownloader.FILE_UNAVAILABLE);
         } catch(Exception e){
@@ -129,5 +124,23 @@ public class Catcher{
             downloadStatus = FileDownloader.FILE_UNREACHABLE;
         }
         return downloadStatus;
+    }
+
+    private void printWaitMessage(){
+        for(int i = 0; i < (60*9); i++){
+            String dot = "";
+            for(int j = 0; j < (i%4); j++){
+                if(dot == null)dot = "";
+                dot += ".";
+            }
+            if(dot == "") dot = "   ";
+
+            System.out.print("File not available right now : Please wait" + dot + "\r");
+            try {
+                Thread.sleep(1000);
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }

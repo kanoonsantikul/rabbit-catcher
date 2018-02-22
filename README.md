@@ -1,4 +1,4 @@
 # rabbit-catcher
 
-run: make run
-#############
+## Run
+'''make run'''
